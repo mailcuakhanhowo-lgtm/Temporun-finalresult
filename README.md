@@ -82,11 +82,13 @@ Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình 
 ## 7. Mô tả Kết quả Đầu ra
 Kết quả được xuất ra file JSON tại đường dẫn truyền qua biến `--output` *(ví dụ: `"D:/KetQua/submission.json"`)*. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi task_id, kèm theo frame_ms tính từ đầu clip.
 > ⚠️ **LƯU Ý QUAN TRỌNG TRƯỚC KHI CHẠY CODE**: 
-> Ban Tổ chức vui lòng đảm bảo Terminal đang trỏ đúng vào thư mục gốc của dự án (nơi chứa file `main.py`). Nếu Terminal đang ở thư mục khác (ví dụ `C:\Users\...`), vui lòng dùng lệnh `cd` để di chuyển vào thư mục dự án trước khi chạy bất kỳ lệnh `python` nào bên dưới.
+> **1. Bật Môi trường Ảo (Virtual Environment):** Ban Tổ chức vui lòng đảm bảo đã kích hoạt đúng môi trường Python cài đặt thư viện (ví dụ: `conda activate temporun-2026`). Nếu không bật, Windows 11 có thể báo lỗi "Python không tìm thấy".
+> **2. Đứng đúng thư mục:** Đảm bảo Terminal đang trỏ đúng vào thư mục gốc của dự án (nơi chứa file `main.py`).
 > 
-> **Ví dụ lệnh chuyển thư mục:**
+> **Ví dụ 2 lệnh chuẩn bị trước khi chạy:**
 > ```bash
 > cd /d "D:\Duong\Dan\Giai\Nen\Temporun-finalresult"
+> conda activate temporun-2026
 > ```
 
 ## 8. Hướng dẫn chạy từng phần (Thủ công)
