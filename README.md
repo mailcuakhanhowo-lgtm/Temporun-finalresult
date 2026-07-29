@@ -1,11 +1,31 @@
 # Giải pháp truy xuất khoảnh khắc trên dữ liệu định dạng mp4 lớn kết hợp tăng cường độ chính xác bằng phương pháp mở rộng ngữ nghĩa với local LLM
 
 ## 1. Giới thiệu Phương pháp
-Giải pháp giải quyết bài toán Temporal Video Retrieval thông qua kiến trúc 4 Module, chạy hoàn toàn offline trên thiết bị cục bộ:
-- **Module 1 (Ollama Llama 3.2 3B)**: Bóc tách ngữ nghĩa câu truy vấn thành các trường dữ liệu (Cảnh chính, Bối cảnh trước/sau, Từ khóa OCR).
-- **Module 2 (CLIP ViT-bigG-14 1280D)**: Mã hóa Frame ảnh và câu truy vấn thành không gian vector chung.
-- **Module 3 (Numpy - Soft Fusion)**: Tìm kiếm trượt thời gian (Sliding Window) kết hợp hàm mũ và hệ số nhân để tăng cường độ chính xác, truy xuất Top 500 ứng viên.
-- **Module 4 (EasyOCR)**: Quét nhận diện chữ (OCR) trên các ứng viên Top 500 và tích hợp điểm tự tin nếu khớp với từ khóa trong câu hỏi.
+Giải pháp giải quyết bài toán Temporal Video Retrieval thông qua đường ống xử lý tự động (End-to-End Pipeline). Quy trình được tối ưu hóa về dung lượng và bộ nhớ VRAM, chia thành 2 Giai đoạn Tiền xử lý và 4 Module Truy xuất cốt lõi nối tiếp nhau:
+
+**Giai đoạn 1: Tiền xử lý Video (Frame Extraction)**
+Quét toàn bộ dữ liệu gốc định dạng `.mp4`. Trích xuất 1 khung hình/giây (`FRAME_INTERVAL_SEC = 1.0`) và lưu dưới chuẩn `.webp` nhằm tối ưu dung lượng đĩa.
+- **Xử lý đa luồng:** Sử dụng `concurrent.futures.ProcessPoolExecutor` với tham số `MAX_WORKERS = 8` để giải mã song song nhiều video, tối đa hóa hiệu suất CPU.
+- **Thuật toán nội suy "Hybrid V":** Tự động so sánh và loại bỏ khung hình tĩnh/trùng lặp qua 5 bước: Downscale 128x128 ➡️ Phân chia lưới 3x3 (Overlapping Grid 50%) ➡️ Chuyển đổi màu HSV ➡️ Tự động điều chỉnh ngày/đêm (ngưỡng `HYBRID_V_THRESHOLD = 40`, `HYBRID_S_THRESHOLD = 20`) ➡️ Tính khoảng cách Bhattacharyya trên Histogram. Giữ lại khung hình nếu sai lệch vượt `HISTOGRAM_THRESHOLD = 0.12`.
+
+**Giai đoạn 2: Mã hóa Hình ảnh (Vision Encoding)**
+Sử dụng mô hình thị giác `ViT-bigG-14` mã hóa ảnh `.webp` thành các ma trận Vector không gian 1280 chiều.
+- **Chiến lược triển khai lai (Hybrid Deployment):** Cung cấp sẵn kịch bản mã hóa trên đám mây (Kaggle 2x T4 16GB) cho tập dữ liệu lớn. Đối với môi trường cục bộ (Local), hệ thống tự động ép định dạng số thực 16-bit (`COMPUTE_DTYPE = float16`) và giới hạn kích thước lô (`CLIP_BATCH_SIZE = 64`) để tối ưu hóa bộ nhớ.
+
+**Module 1: Mở rộng Ngữ nghĩa (LLM Semantic Expansion)**
+Sử dụng mô hình ngôn ngữ cục bộ `Ollama Llama 3.2 3B` (Greedy Decoding, `Temperature = 0.0`) phân tích file đề thi `.jsonl`. Câu truy vấn được bóc tách thành 3 luồng dữ liệu độc lập: Bối cảnh, Cảnh chính, và Từ khóa văn bản (OCR), tạo tiền đề cho quá trình truy xuất không gian - thời gian.
+
+**Module 2: Mã hóa Truy vấn (Text Encoding)**
+Dữ liệu văn bản từ Module 1 được đưa qua nhánh Text-Encoder của `ViT-bigG-14` để đồng bộ hóa thành Vector Truy vấn, khớp nối chuẩn xác với Không gian Vector Hình ảnh.
+
+**Module 3: Truy xuất Không gian - Thời gian (Soft-Fusion Retrieval)**
+Thực hiện phép nhân ma trận (Dot-Product) trượt trên trục thời gian (Temporal Sliding Window). 
+- **Cách tính điểm:** Tính Cosine Similarity cho "Cảnh chính", cộng dồn trọng số từ các khung hình "Bối cảnh trước/sau" lân cận bằng hàm suy giảm mũ (Exponential Decay). Hệ thống truy vết chính xác chuỗi hành động và trích xuất số lượng ứng viên theo cấu hình (`TOP_K_SEARCH = 100`).
+
+**Module 4: Nhận diện Văn bản & Kết xuất (OCR & Submission)**
+Kích hoạt mô hình `EasyOCR` quét trực tiếp trên các ứng viên từ Module 3. 
+- **Cách tính điểm:** Văn bản trích xuất được đối chiếu với "Từ khóa OCR" bằng thuật toán `Levenshtein`. Nếu mức tương đồng chuỗi vượt ngưỡng, hệ thống tự động cộng Điểm thưởng (Bonus Score) vào điểm Cosine gốc. 
+- Cuối cùng, hệ thống lọc Top 10 khung hình hoàn hảo nhất mỗi truy vấn và kết xuất ra file `submission.json` theo định dạng của Ban Tổ chức.
 
 ## 2. Cấu trúc Repository
 ```
@@ -28,7 +48,7 @@ final/
 
 ## 3. Yêu cầu Phần cứng & Phần mềm
 - **Hệ điều hành**: Ubuntu 22.04 / Windows 10/11
-- **Card Đồ Họa (GPU)**: Đã kiểm thử trên NVIDIA RTX 4090 / RTX 5050. Yêu cầu VRAM tối thiểu 8GB.
+- **Card Đồ Họa (GPU)**: Khuyến nghị GPU có tối thiểu 12GB VRAM (như RTX 3060, RTX 4070 trở lên) để chạy mượt mà mô hình ViT-bigG-14 ở Batch Size 64 (tiêu thụ khoảng 9.5GB VRAM). Đã kiểm thử thành công trên hệ thống 24GB VRAM (NVIDIA RTX 4090). Nếu chạy trên máy 8GB VRAM, vui lòng vào `config.py` giảm `CLIP_BATCH_SIZE = 16`.
 - **CUDA Toolkit**: 12.1+ (Khuyến nghị dùng Conda để tự quản lý)
 - **RAM hệ thống**: Khuyến nghị 32GB+
 - **Ổ cứng**: SSD NVMe (cần ít nhất 50GB trống để lưu Frame và Vector Database).
