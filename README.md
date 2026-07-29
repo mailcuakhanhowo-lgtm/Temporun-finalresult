@@ -12,7 +12,7 @@ Quét toàn bộ dữ liệu gốc định dạng `.mp4`. Trích xuất 1 khung 
 
 **Giai đoạn 2: Mã hóa Hình ảnh (Vision Encoding)**
 Sử dụng mô hình thị giác `ViT-bigG-14` mã hóa ảnh `.webp` thành các ma trận Vector không gian 1280 chiều.
-- **Tối ưu phần cứng:** Để xử lý kho ảnh lớn mà không tràn bộ nhớ, hệ thống sử dụng định dạng số thực 16-bit (`COMPUTE_DTYPE = float16`). Kích thước lô xử lý được cấu hình ở mức `CLIP_BATCH_SIZE = 64`, tối ưu cho quá trình suy luận cục bộ.
+- **Khó khăn và Giải pháp (VRAM Limit):** Trong quá trình phát triển, mô hình `ViT-bigG-14` đòi hỏi lượng VRAM khổng lồ (~9.5GB) để chạy ổn định, dẫn đến hiện tượng tràn bộ nhớ (Out of Memory) trên thiết bị cá nhân (Laptop 8GB VRAM) của đội thi. Để vượt qua giới hạn này, đội đã phải linh hoạt đưa toàn bộ luồng xử lý của Giai đoạn 2 lên nền tảng đám mây Kaggle (sử dụng 2x T4 16GB VRAM) nhằm hoàn tất việc mã hóa dữ liệu thực tế. Tuy nhiên, mã nguồn nộp cho BTC vẫn được thiết kế chuẩn để chạy hoàn toàn cục bộ (Local) bằng kỹ thuật ép định dạng 16-bit (`COMPUTE_DTYPE = float16`). Đội thi tin tưởng rằng với cấu hình máy chủ tính toán mạnh mẽ của Ban Tổ chức (thường có sẵn >=12GB VRAM), toàn bộ Giai đoạn 2 sẽ tự động chạy mượt mà ngay trên máy cục bộ mà không gặp trở ngại nào.
 
 **Module 1: Mở rộng Ngữ nghĩa (LLM Semantic Expansion)**
 Sử dụng mô hình ngôn ngữ cục bộ `Ollama Llama 3.2 3B` (Greedy Decoding, `Temperature = 0.0`) phân tích file đề thi `.jsonl`. Câu truy vấn được bóc tách thành 3 luồng dữ liệu độc lập: Bối cảnh, Cảnh chính, và Từ khóa văn bản (OCR), tạo tiền đề cho quá trình truy xuất không gian - thời gian.
@@ -50,7 +50,7 @@ final/
 
 ## 3. Yêu cầu Phần cứng & Phần mềm
 - **Hệ điều hành**: Ubuntu 22.04 / Windows 10/11
-- **Card Đồ Họa (GPU)**: Khuyến nghị GPU có tối thiểu 12GB VRAM (như RTX 3060, RTX 4070 trở lên) để chạy mượt mà mô hình ViT-bigG-14 ở Batch Size 64 (tiêu thụ khoảng 9.5GB VRAM). Nếu chạy trên máy 8GB VRAM, hệ thống hỗ trợ hạ cấu hình thông qua tham số `CLIP_BATCH_SIZE = 16` trong `config.py`.
+- **Card Đồ Họa (GPU)**: Khuyến nghị GPU có tối thiểu 12GB VRAM (như RTX 3060, RTX 4070 trở lên) để chạy mượt mà mô hình ViT-bigG-14 ở Batch Size 64 (thực tế tiêu thụ khoảng 9.5GB VRAM). Nếu thử nghiệm trên máy 8GB VRAM, vui lòng vào `config.py` hạ tham số `CLIP_BATCH_SIZE = 16` hoặc tham khảo kịch bản chạy đám mây trên Kaggle của đội thi.
 - **CUDA Toolkit**: 12.1+ (Khuyến nghị dùng Conda để tự quản lý)
 - **RAM hệ thống**: Khuyến nghị 32GB+
 - **Ổ cứng**: SSD NVMe (cần ít nhất 50GB trống để lưu Frame và Vector Database).
