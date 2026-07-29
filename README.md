@@ -106,9 +106,9 @@ python main.py --video_dir "C:/thu_muc_cua_BTC/videos" --task_file "C:/thu_muc_c
 
 *(Vui lòng thay đổi đường dẫn `C:/thu_muc_cua_BTC/...` cho phù hợp với hệ thống đánh giá thực tế của Ban Tổ chức)*.
 
-**Ví dụ thực tế:** Nếu máy chấm thi lưu dữ liệu ở ổ D, lệnh có thể trông như thế này:
+**Ví dụ thực tế:** Nếu máy chấm thi lưu dữ liệu ở ổ E, lệnh có thể trông như thế này:
 ```bash
-python main.py --video_dir "D:/Data_ChamThi/Videos" --task_file "D:/Data_ChamThi/private_round_tasks.jsonl" --output "D:/KetQua/doi_co_xe_tang.json"
+python main.py --video_dir "E:/Test_Videos" --task_file "E:/de_thi.jsonl" --output "E:/ket_qua.json"
 ```
 
 ## 11. Các Tham số Mặc định
