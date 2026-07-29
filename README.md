@@ -86,7 +86,15 @@ python src/station2_clip.py
 python src/station34_pipeline.py
 ```
 
-## 9. Lệnh chạy toàn bộ Pipeline
+## 9. Hướng dẫn chạy bằng Bảng Điều Khiển (Giao diện UI)
+Để hỗ trợ Ban Tổ chức thao tác trực quan hơn, mã nguồn cung cấp một Bảng điều khiển (Dashboard) không yêu cầu cài đặt thêm thư viện web.
+Vui lòng chạy lệnh:
+```bash
+python dashboard_btc.py
+```
+> **Lưu ý:** Giao diện này được thiết lập để tự động đọc dữ liệu mẫu từ thư mục `data/` bên trong mã nguồn. Nếu BTC muốn chấm điểm trên bộ dữ liệu bí mật có cấu trúc đường dẫn khác, vui lòng sử dụng lệnh Terminal như hướng dẫn ở mục 10 dưới đây.
+
+## 10. Lệnh chạy toàn bộ Pipeline
 Đây là lệnh tự động hóa toàn bộ quy trình:
 
 ```bash
@@ -95,13 +103,13 @@ python main.py --video_dir /du/ong/dan/toi/dataset/videos --task_file /du/ong/da
 
 *(Vui lòng thay đổi đường dẫn phù hợp với hệ thống đánh giá)*.
 
-## 10. Các Tham số Mặc định
+## 11. Các Tham số Mặc định
 Mọi thông số được cấu hình trong `src/config.py`:
 - Sử dụng mô hình ViT-bigG-14.
 - `FRAME_INTERVAL_SEC = 1.0`: Trích xuất 1 khung hình mỗi giây.
 - `COMPUTE_DTYPE = "float16"`: Tối ưu bộ nhớ VRAM cho quá trình mã hóa ảnh.
 
-## 11. Các lỗi hoặc giới hạn đã biết
+## 12. Các lỗi hoặc giới hạn đã biết
 - **Giới hạn VRAM (ViT-bigG-14)**: Trong quá trình phát triển, mô hình `ViT-bigG-14` yêu cầu ~9.5GB VRAM, dẫn đến hiện tượng tràn bộ nhớ (Out of Memory) trên thiết bị cá nhân 8GB VRAM của đội thi. Để giải quyết, đội đã linh hoạt đưa quá trình mã hóa ảnh lên nền tảng đám mây Kaggle (sử dụng 2x T4 16GB VRAM) để hoàn thiện bài toán thực tế. Tuy nhiên, mã nguồn nộp cho Ban Tổ chức vẫn được thiết kế tối ưu (`float16`) để có thể chạy mượt mà hoàn toàn cục bộ trên máy chủ có cấu hình >=12GB VRAM.
 - **Sự phụ thuộc Ollama**: Nếu dịch vụ Ollama cục bộ không khả dụng, hệ thống tự động Fallback sử dụng nguyên văn câu truy vấn gốc.
 - Quá trình trích xuất khung hình ở Giai đoạn 1 yêu cầu tài nguyên CPU cao do chạy đa luồng đồng thời.
