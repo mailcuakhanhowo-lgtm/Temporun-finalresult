@@ -80,7 +80,7 @@ Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình 
 - File câu hỏi (đề thi) `.jsonl` được truyền qua tham số `--task_file` *(ví dụ: `"D:/Data_ChamThi/private_round_tasks.jsonl"`)*.
 
 ## 7. Mô tả Kết quả Đầu ra
-Kết quả được xuất ra file JSON tại đường dẫn truyền qua biến `--output` *(ví dụ: `"D:/KetQua/doi_co_xe_tang.json"`)*. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi task_id, kèm theo frame_ms tính từ đầu clip.
+Kết quả được xuất ra file JSON tại đường dẫn truyền qua biến `--output` *(ví dụ: `"D:/KetQua/submission.json"`)*. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi task_id, kèm theo frame_ms tính từ đầu clip.
 
 ## 8. Hướng dẫn chạy từng phần (Thủ công)
 Nếu BTC muốn kiểm thử từng bước độc lập (thay vì dùng `main.py`), vui lòng cấu hình các biến môi trường `VIDEO_DIR`, `TASK_FILE_PATH`, `SUBMISSION_FILE_PATH` và chạy lần lượt:
@@ -114,7 +114,7 @@ python main.py --video_dir "C:/thu_muc_cua_BTC/videos" --task_file "C:/thu_muc_c
 
 **Ví dụ thực tế:** Nếu máy chấm thi lưu dữ liệu ở ổ E, lệnh có thể trông như thế này:
 ```bash
-python main.py --video_dir "E:/Test_Videos" --task_file "E:/de_thi.jsonl" --output "E:/ket_qua.json"
+python main.py --video_dir "E:/Test_Videos" --task_file "E:/de_thi.jsonl" --output "E:/submission.json"
 ```
 
 ## 11. Các Tham số Mặc định
