@@ -56,7 +56,7 @@ pip install -r requirements.txt
 ```
 
 > ⚠️ **LƯU Ý QUAN TRỌNG TRƯỚC KHI CHẠY CODE**: 
-> **1. Bật Môi trường Ảo (Virtual Environment):** Mỗi khi mở một cửa sổ Terminal mới, Ban Tổ chức vui lòng đảm bảo đã kích hoạt đúng môi trường Python cài đặt thư viện (ví dụ: `conda activate temporun-2026`). Nếu không bật, Windows 11 có thể báo lỗi "Python không tìm thấy".
+> **1. Bật Môi trường Ảo (Virtual Environment):** Mỗi khi mở một cửa sổ Terminal mới, Ban Tổ chức vui lòng đảm bảo đã kích hoạt đúng môi trường Python cài đặt thư viện (ví dụ: `conda activate temporun-2026`). Nếu không bật, Windows 11 có thể báo lỗi "Python không tìm thấy". *(Nếu dùng Windows và gặp lỗi 'conda is not recognized', vui lòng mở bằng ứng dụng **Anaconda Prompt** thay vì CMD mặc định).*
 > **2. Đứng đúng thư mục:** Đảm bảo Terminal đang trỏ đúng vào thư mục gốc của dự án (nơi chứa file `main.py`).
 > 
 > **Ví dụ 2 lệnh chuẩn bị mỗi khi mở Terminal mới:**
