@@ -70,36 +70,12 @@ Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình 
 
 ## 6. Mô tả Dữ liệu Đầu vào
 - Mã nguồn nhận đường dẫn tự động thông qua dòng lệnh.
-- Thư mục video gốc chứa file `.mp4` được truyền qua tham số `--video_dir`. Cấu trúc thư mục mong đợi:
-  ```text
-  videos/
-  ├── video_001.mp4
-  ├── video_002.mp4
-  └── ...
-  ```
-- File câu hỏi (đề thi) `.jsonl` được truyền qua tham số `--task_file`. Cấu trúc mỗi dòng JSON:
-  ```json
-  {"task_id": "1", "query": "Một người đàn ông đang lái xe máy..."}
-  {"task_id": "2", "query": "Biển số xe 86 chạy qua ngã tư..."}
-  ```
+- Thư mục video gốc chứa file `.mp4` được truyền qua tham số `--video_dir`.
+- File câu hỏi (đề thi) `.jsonl` được truyền qua tham số `--task_file`.
 
 ## 7. Mô tả Kết quả Đầu ra
-Kết quả được xuất ra file JSON (ví dụ: `submission.json`) tại đường dẫn truyền qua biến `--output`. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi `task_id`, kèm theo `frame_ms` tính từ đầu clip.
+Kết quả được xuất ra file JSON (ví dụ: `submission.json`) tại đường dẫn truyền qua biến `--output`. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi task_id, kèm theo frame_ms tính từ đầu clip.
 
-**Code mẫu File Kết quả (submission.json):**
-```json
-{
-  "1": [
-    {"video_name": "video_001", "frame_ms": 15000},
-    {"video_name": "video_002", "frame_ms": 32000},
-    ... (tổng cộng 10 kết quả)
-  ],
-  "2": [
-    {"video_name": "video_005", "frame_ms": 1000},
-    ...
-  ]
-}
-```
 ## 8. Hướng dẫn chạy từng phần (Thủ công)
 Nếu BTC muốn kiểm thử từng bước độc lập (thay vì dùng `main.py`), vui lòng cấu hình các biến môi trường `VIDEO_DIR`, `TASK_FILE_PATH`, `SUBMISSION_FILE_PATH` và chạy lần lượt:
 ```bash
@@ -117,7 +93,7 @@ Vui lòng khởi động giao diện bằng lệnh:
 ```bash
 python dashboard_btc.py
 ```
-> **💡 Tính năng Đồng bộ Thông minh (Terminal ↔ UI):** Giao diện được trang bị sẵn 3 ô nhập đường dẫn. Theo mặc định, hệ thống trỏ về dữ liệu mẫu `data/`. Tuy nhiên, nếu BTC từng chạy lệnh ở Terminal (Mục 11) trước đó, Giao diện sẽ **tự động ghi nhớ và đồng bộ** toàn bộ các đường dẫn bí mật mà BTC đã gõ. BTC cũng có toàn quyền chỉnh sửa các đường dẫn này trực tiếp ngay trên Giao diện.
+> **💡 Tính năng Đồng bộ Thông minh (Terminal ↔ UI):** Giao diện được trang bị sẵn 3 ô nhập đường dẫn. Theo mặc định, hệ thống trỏ về dữ liệu mẫu `data/`. Tuy nhiên, nếu BTC từng chạy lệnh ở Terminal (Mục 10) trước đó, Giao diện sẽ **tự động ghi nhớ và đồng bộ** toàn bộ các đường dẫn bí mật mà BTC đã gõ. BTC cũng có toàn quyền chỉnh sửa các đường dẫn này trực tiếp ngay trên Giao diện.
 > 
 > **Quy tắc ưu tiên (Ghi đè):** Nếu BTC chỉnh sửa đường dẫn trên Giao diện, hệ thống sẽ chạy và lưu lại cấu hình đó. Tuy nhiên, nếu sau đó BTC quyết định quay lại dùng lệnh Terminal (`python main.py ...`), **lệnh gõ tay trên Terminal luôn mang Quyền Ưu Tiên Cao Nhất**. Nó sẽ ghi đè mọi cấu hình của UI trước đó và ép UI phải đồng bộ theo lệnh mới này.
 
@@ -129,6 +105,11 @@ python main.py --video_dir "C:/thu_muc_cua_BTC/videos" --task_file "C:/thu_muc_c
 ```
 
 *(Vui lòng thay đổi đường dẫn `C:/thu_muc_cua_BTC/...` cho phù hợp với hệ thống đánh giá thực tế của Ban Tổ chức)*.
+
+**Ví dụ thực tế:** Nếu máy chấm thi lưu dữ liệu ở ổ D, lệnh có thể trông như thế này:
+```bash
+python main.py --video_dir "D:/Data_ChamThi/Videos" --task_file "D:/Data_ChamThi/private_round_tasks.jsonl" --output "D:/KetQua/doi_co_xe_tang.json"
+```
 
 ## 11. Các Tham số Mặc định
 Mọi thông số được cấu hình trong `src/config.py`:
