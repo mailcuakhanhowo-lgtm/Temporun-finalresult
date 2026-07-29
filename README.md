@@ -1,4 +1,4 @@
-# Giải pháp Truy xuất Không gian - Thời gian kết hợp Mở rộng Ngữ nghĩa (Local Pipeline)
+# Giải pháp truy xuất khoảnh khắc trên dữ liệu định dạng mp4 lớn kết hợp tăng cường độ chính xác bằng phương pháp mở rộng ngữ nghĩa với local LLM
 
 ## 1. Giới thiệu Phương pháp
 Giải pháp giải quyết bài toán Temporal Video Retrieval thông qua kiến trúc 4 Module, chạy hoàn toàn offline trên thiết bị cục bộ:
