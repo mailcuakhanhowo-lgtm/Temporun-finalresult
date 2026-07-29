@@ -1,0 +1,11 @@
+torch
+torchvision
+torchaudio
+open-clip-torch
+opencv-python
+numpy
+easyocr
+thefuzz
+python-Levenshtein
+requests
+tqdm

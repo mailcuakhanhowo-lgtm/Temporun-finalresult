@@ -1,0 +1,21 @@
+name: temporun-2026
+channels:
+  - pytorch
+  - nvidia
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.1
+  - pip
+  - pip:
+    - open-clip-torch
+    - opencv-python
+    - easyocr
+    - thefuzz
+    - python-Levenshtein
+    - requests
+    - tqdm
+    - numpy

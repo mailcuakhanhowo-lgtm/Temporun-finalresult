@@ -1,0 +1,6 @@
+# Bo qua thu muc du lieu
+data/
+__pycache__/
+*.pyc
+venv/
+.DS_Store
