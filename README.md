@@ -94,6 +94,8 @@ Vui lòng khởi động giao diện bằng lệnh:
 python dashboard_btc.py
 ```
 > **💡 Tính năng Đồng bộ Thông minh (Terminal ↔ UI):** Giao diện được trang bị sẵn 3 ô nhập đường dẫn. Theo mặc định, hệ thống trỏ về dữ liệu mẫu `data/`. Tuy nhiên, nếu BTC từng chạy lệnh ở Terminal (Mục 10) trước đó, Giao diện sẽ **tự động ghi nhớ và đồng bộ** toàn bộ các đường dẫn bí mật mà BTC đã gõ. BTC cũng có toàn quyền chỉnh sửa các đường dẫn này trực tiếp ngay trên Giao diện.
+> 
+> **Quy tắc ưu tiên (Ghi đè):** Nếu BTC chỉnh sửa đường dẫn trên Giao diện, hệ thống sẽ chạy và lưu lại cấu hình đó. Tuy nhiên, nếu sau đó BTC quyết định quay lại dùng lệnh Terminal (`python main.py ...`), **lệnh gõ tay trên Terminal luôn mang Quyền Ưu Tiên Cao Nhất**. Nó sẽ ghi đè mọi cấu hình của UI trước đó và ép UI phải đồng bộ theo lệnh mới này.
 
 ## 10. Lệnh chạy toàn bộ Pipeline
 Đây là lệnh tự động hóa toàn bộ quy trình:
