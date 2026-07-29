@@ -1,12 +1,14 @@
 # Giải pháp truy xuất khoảnh khắc trên dữ liệu định dạng mp4 lớn kết hợp tăng cường độ chính xác bằng phương pháp mở rộng ngữ nghĩa với local LLM
 
+> **Lời tựa từ Nhóm Phát triển:** Toàn bộ quá trình nghiên cứu, từ việc học hỏi các kiến thức cơ bản về AI/Computer Vision cho đến từng dòng mã nguồn, đều được đội thi tự học hỏi từng bước và xây dựng hoàn toàn với sự trợ giúp đắc lực của các Trợ lý Trí tuệ Nhân tạo (AI).
+
 ## 1. Giới thiệu Phương pháp
 Giải pháp giải quyết bài toán Temporal Video Retrieval thông qua đường ống xử lý tự động (End-to-End Pipeline). Quy trình được tối ưu hóa về dung lượng và bộ nhớ VRAM, chia thành 2 Giai đoạn Tiền xử lý và 4 Module Truy xuất cốt lõi nối tiếp nhau:
 
 **Giai đoạn 1: Tiền xử lý Video (Frame Extraction)**
 Quét toàn bộ dữ liệu gốc định dạng `.mp4`. Trích xuất 1 khung hình/giây (`FRAME_INTERVAL_SEC = 1.0`) và lưu dưới chuẩn `.webp` nhằm tối ưu dung lượng đĩa.
-- **Xử lý đa luồng:** Sử dụng `concurrent.futures.ProcessPoolExecutor` với tham số `MAX_WORKERS = 8` để giải mã song song nhiều video, tối đa hóa hiệu suất CPU.
-- **Thuật toán nội suy "Hybrid V":** Tự động so sánh và loại bỏ khung hình tĩnh/trùng lặp qua 5 bước: Downscale 128x128 ➡️ Phân chia lưới 3x3 (Overlapping Grid 50%) ➡️ Chuyển đổi màu HSV ➡️ Tự động điều chỉnh ngày/đêm (ngưỡng `HYBRID_V_THRESHOLD = 40`, `HYBRID_S_THRESHOLD = 20`) ➡️ Tính khoảng cách Bhattacharyya trên Histogram. Giữ lại khung hình nếu sai lệch vượt `HISTOGRAM_THRESHOLD = 0.12`.
+- **Xử lý đa luồng:** Sử dụng cơ chế phân luồng cấp phát song song (`MAX_WORKERS = 8`) để giải mã đồng loạt nhiều video cùng lúc, tối đa hóa hiệu suất CPU của thiết bị.
+- **Thuật toán nội suy "Hybrid V" (Được AI đề xuất):** Tự động so sánh và loại bỏ khung hình tĩnh/trùng lặp qua 5 bước: Downscale 128x128 ➡️ Phân chia lưới 3x3 (Overlapping Grid 50%) ➡️ Chuyển đổi màu HSV ➡️ Tự động điều chỉnh ngày/đêm (ngưỡng `HYBRID_V_THRESHOLD = 40`, `HYBRID_S_THRESHOLD = 20`) ➡️ Tính khoảng cách Bhattacharyya trên Histogram. Giữ lại khung hình nếu sai lệch vượt `HISTOGRAM_THRESHOLD = 0.12`.
 
 **Giai đoạn 2: Mã hóa Hình ảnh (Vision Encoding)**
 Sử dụng mô hình thị giác `ViT-bigG-14` mã hóa ảnh `.webp` thành các ma trận Vector không gian 1280 chiều.
