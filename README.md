@@ -93,7 +93,7 @@ Vui lòng khởi động giao diện bằng lệnh:
 ```bash
 python dashboard_btc.py
 ```
-> **Lưu ý:** Giao diện này được thiết lập để tự động đọc dữ liệu mẫu từ thư mục `data/` bên trong mã nguồn. Nếu BTC muốn chấm điểm trên bộ dữ liệu bí mật có cấu trúc đường dẫn khác, vui lòng sử dụng lệnh Terminal truyền tham số như hướng dẫn ở mục 10 dưới đây.
+> **💡 Tính năng Đồng bộ Thông minh (Terminal ↔ UI):** Giao diện được trang bị sẵn 3 ô nhập đường dẫn. Theo mặc định, hệ thống trỏ về dữ liệu mẫu `data/`. Tuy nhiên, nếu BTC từng chạy lệnh ở Terminal (Mục 10) trước đó, Giao diện sẽ **tự động ghi nhớ và đồng bộ** toàn bộ các đường dẫn bí mật mà BTC đã gõ. BTC cũng có toàn quyền chỉnh sửa các đường dẫn này trực tiếp ngay trên Giao diện.
 
 ## 10. Lệnh chạy toàn bộ Pipeline
 Đây là lệnh tự động hóa toàn bộ quy trình:
