@@ -1,6 +1,6 @@
 # Giải pháp truy xuất khoảnh khắc trên dữ liệu định dạng mp4 lớn kết hợp tăng cường độ chính xác bằng phương pháp mở rộng ngữ nghĩa với local LLM
 
-> **Lời tựa từ Nhóm Phát triển:** Toàn bộ quá trình nghiên cứu, từ việc học hỏi các kiến thức cơ bản về AI/Computer Vision cho đến từng dòng mã nguồn, đều được đội thi tự học hỏi từng bước và xây dựng hoàn toàn với sự trợ giúp đắc lực của các Trợ lý Trí tuệ Nhân tạo (AI).
+> **Lời tựa từ Đội thi:** Toàn bộ quá trình nghiên cứu, từ việc học hỏi các kiến thức cơ bản về Video Retrieval cho đến từng dòng mã nguồn, đều được đội thi tự học hỏi từng bước và xây dựng hoàn toàn với sự trợ giúp đắc lực của các Trợ lý Trí tuệ Nhân tạo (AI).
 
 ## 1. Giới thiệu Phương pháp
 Giải pháp giải quyết bài toán Temporal Video Retrieval thông qua đường ống xử lý tự động (End-to-End Pipeline). Quy trình được tối ưu hóa về dung lượng và bộ nhớ VRAM, chia thành 2 Giai đoạn Tiền xử lý và 4 Module Truy xuất cốt lõi nối tiếp nhau:
