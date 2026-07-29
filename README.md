@@ -3,31 +3,13 @@
 > **Lời tựa từ Đội thi:** Toàn bộ quá trình nghiên cứu, từ việc học hỏi các kiến thức cơ bản về Video Retrieval cho đến từng dòng mã nguồn, đều được đội thi tự học hỏi từng bước và xây dựng hoàn toàn với sự trợ giúp đắc lực của các Trợ lý Trí tuệ Nhân tạo (AI).
 
 ## 1. Giới thiệu Phương pháp
-Giải pháp giải quyết bài toán Temporal Video Retrieval thông qua đường ống xử lý tự động (End-to-End Pipeline). Quy trình được tối ưu hóa về dung lượng và bộ nhớ VRAM, chia thành 2 Giai đoạn Tiền xử lý và 4 Module Truy xuất cốt lõi nối tiếp nhau:
-
-**Giai đoạn 1: Tiền xử lý Video (Frame Extraction)**
-Quét toàn bộ dữ liệu gốc định dạng `.mp4`. Trích xuất 1 khung hình/giây (`FRAME_INTERVAL_SEC = 1.0`) và lưu dưới chuẩn `.webp` nhằm tối ưu dung lượng đĩa.
-- **Xử lý đa luồng:** Sử dụng cơ chế phân luồng cấp phát song song (`MAX_WORKERS = 8`) để giải mã đồng loạt nhiều video cùng lúc, tối đa hóa hiệu suất CPU của thiết bị.
-- **Thuật toán nội suy "Hybrid V" (Được AI đề xuất):** Tự động so sánh và loại bỏ khung hình tĩnh/trùng lặp qua 5 bước: Downscale 128x128 ➡️ Phân chia lưới 3x3 (Overlapping Grid 50%) ➡️ Chuyển đổi màu HSV ➡️ Tự động điều chỉnh ngày/đêm (ngưỡng `HYBRID_V_THRESHOLD = 40`, `HYBRID_S_THRESHOLD = 20`) ➡️ Tính khoảng cách Bhattacharyya trên Histogram. Giữ lại khung hình nếu sai lệch vượt `HISTOGRAM_THRESHOLD = 0.12`.
-
-**Giai đoạn 2: Mã hóa Hình ảnh (Vision Encoding)**
-Sử dụng mô hình thị giác `ViT-bigG-14` mã hóa ảnh `.webp` thành các ma trận Vector không gian 1280 chiều.
-- **Khó khăn và Giải pháp (VRAM Limit):** Trong quá trình phát triển, mô hình `ViT-bigG-14` đòi hỏi lượng VRAM khổng lồ (~9.5GB) để chạy ổn định, dẫn đến hiện tượng tràn bộ nhớ (Out of Memory) trên thiết bị cá nhân (Laptop 8GB VRAM) của đội thi. Để vượt qua giới hạn này, đội đã phải linh hoạt đưa toàn bộ luồng xử lý của Giai đoạn 2 lên nền tảng đám mây Kaggle (sử dụng 2x T4 16GB VRAM) nhằm hoàn tất việc mã hóa dữ liệu thực tế. Tuy nhiên, mã nguồn nộp cho BTC vẫn được thiết kế chuẩn để chạy hoàn toàn cục bộ (Local) bằng kỹ thuật ép định dạng 16-bit (`COMPUTE_DTYPE = float16`). Đội thi tin tưởng rằng với cấu hình máy chủ tính toán mạnh mẽ của Ban Tổ chức (thường có sẵn >=12GB VRAM), toàn bộ Giai đoạn 2 sẽ tự động chạy mượt mà ngay trên máy cục bộ mà không gặp trở ngại nào.
-
-**Module 1: Mở rộng Ngữ nghĩa (LLM Semantic Expansion)**
-Sử dụng mô hình ngôn ngữ cục bộ `Ollama Llama 3.2 3B` (Greedy Decoding, `Temperature = 0.0`) phân tích file đề thi `.jsonl`. Câu truy vấn được bóc tách thành 3 luồng dữ liệu độc lập: Bối cảnh, Cảnh chính, và Từ khóa văn bản (OCR), tạo tiền đề cho quá trình truy xuất không gian - thời gian.
-
-**Module 2: Mã hóa Truy vấn (Text Encoding)**
-Dữ liệu văn bản từ Module 1 được đưa qua nhánh Text-Encoder của `ViT-bigG-14` để đồng bộ hóa thành Vector Truy vấn, khớp nối chuẩn xác với Không gian Vector Hình ảnh.
-
-**Module 3: Truy xuất Không gian - Thời gian (Soft-Fusion Retrieval)**
-Thực hiện phép nhân ma trận (Dot-Product) trượt trên trục thời gian (Temporal Sliding Window). 
-- **Cách tính điểm:** Tính Cosine Similarity cho "Cảnh chính", cộng dồn trọng số từ các khung hình "Bối cảnh trước/sau" lân cận bằng hàm suy giảm mũ (Exponential Decay). Hệ thống truy vết chính xác chuỗi hành động và trích xuất số lượng ứng viên theo cấu hình (`TOP_K_SEARCH = 100`).
-
-**Module 4: Nhận diện Văn bản & Kết xuất (OCR & Submission)**
-Kích hoạt mô hình `EasyOCR` quét trực tiếp trên các ứng viên từ Module 3. 
-- **Cách tính điểm:** Văn bản trích xuất được đối chiếu với "Từ khóa OCR" bằng thuật toán `Levenshtein`. Nếu mức tương đồng chuỗi vượt ngưỡng, hệ thống tự động cộng Điểm thưởng (Bonus Score) vào điểm Cosine gốc. 
-- Cuối cùng, hệ thống lọc Top 10 khung hình hoàn hảo nhất mỗi truy vấn và kết xuất ra file `submission.json` theo định dạng của Ban Tổ chức.
+Giải pháp giải quyết bài toán Temporal Video Retrieval thông qua đường ống xử lý tự động (End-to-End Pipeline) chia thành 6 giai đoạn cốt lõi:
+- **Tiền xử lý Video**: Lọc khung hình trùng lặp bằng thuật toán nội suy **Hybrid V** (tự động phát hiện ngày/đêm và tính khoảng cách Bhattacharyya), do AI đề xuất.
+- **Mã hóa Hình ảnh**: Sử dụng mô hình **ViT-bigG-14** (không gian 1280 chiều, tối ưu hóa bộ nhớ với chuẩn `float16`).
+- **Mở rộng Ngữ nghĩa**: Sử dụng LLM cục bộ **Ollama Llama 3.2 3B** phân rã truy vấn gốc thành Cảnh chính, Bối cảnh và Từ khóa.
+- **Mã hóa Truy vấn**: Đồng bộ hóa dữ liệu văn bản vào không gian vector qua nhánh Text-Encoder của **ViT-bigG-14**.
+- **Truy xuất Không gian - Thời gian**: Tìm kiếm dựa trên thuật toán **Soft-Fusion Retrieval** (phép nhân ma trận kết hợp trượt thời gian Sliding Window và hàm mũ).
+- **Nhận diện Văn bản**: Kích hoạt **EasyOCR** kết hợp thuật toán so khớp chuỗi **Levenshtein** để cộng điểm thưởng cho các ứng viên.
 
 ## 2. Cấu trúc Repository
 ```
@@ -115,6 +97,7 @@ Mọi thông số được cấu hình trong `src/config.py`:
 - `FRAME_INTERVAL_SEC = 1.0`: Trích xuất 1 khung hình mỗi giây.
 - `COMPUTE_DTYPE = "float16"`: Tối ưu bộ nhớ VRAM cho quá trình mã hóa ảnh.
 
-## 11. Các lưu ý khi vận hành
-- Nếu dịch vụ Ollama không khả dụng (cổng 11434 không phản hồi), hệ thống sẽ tự động sử dụng nguyên văn câu truy vấn gốc. Xin lưu ý khởi động Ollama trước khi thực thi.
-- Quá trình trích xuất khung hình ở Giai đoạn 1 yêu cầu tài nguyên CPU/RAM cao, mong BTC lưu ý.
+## 11. Các lỗi hoặc giới hạn đã biết
+- **Giới hạn VRAM (ViT-bigG-14)**: Trong quá trình phát triển, mô hình `ViT-bigG-14` yêu cầu ~9.5GB VRAM, dẫn đến hiện tượng tràn bộ nhớ (Out of Memory) trên thiết bị cá nhân 8GB VRAM của đội thi. Để giải quyết, đội đã linh hoạt đưa quá trình mã hóa ảnh lên nền tảng đám mây Kaggle (sử dụng 2x T4 16GB VRAM) để hoàn thiện bài toán thực tế. Tuy nhiên, mã nguồn nộp cho Ban Tổ chức vẫn được thiết kế tối ưu (`float16`) để có thể chạy mượt mà hoàn toàn cục bộ trên máy chủ có cấu hình >=12GB VRAM.
+- **Sự phụ thuộc Ollama**: Nếu dịch vụ Ollama cục bộ không khả dụng, hệ thống tự động Fallback sử dụng nguyên văn câu truy vấn gốc.
+- Quá trình trích xuất khung hình ở Giai đoạn 1 yêu cầu tài nguyên CPU cao do chạy đa luồng đồng thời.
