@@ -99,10 +99,10 @@ python dashboard_btc.py
 Đây là lệnh tự động hóa toàn bộ quy trình:
 
 ```bash
-python main.py --video_dir /du/ong/dan/toi/dataset/videos --task_file /du/ong/dan/toi/private_round_tasks.jsonl --output /du/ong/dan/toi/submission.json
+python main.py --video_dir "C:/thu_muc_cua_BTC/videos" --task_file "C:/thu_muc_cua_BTC/private_round_tasks.jsonl" --output "C:/thu_muc_cua_BTC/submission.json"
 ```
 
-*(Vui lòng thay đổi đường dẫn phù hợp với hệ thống đánh giá)*.
+*(Vui lòng thay đổi đường dẫn `C:/thu_muc_cua_BTC/...` cho phù hợp với hệ thống đánh giá thực tế của Ban Tổ chức)*.
 
 ## 11. Các Tham số Mặc định
 Mọi thông số được cấu hình trong `src/config.py`:
