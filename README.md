@@ -12,7 +12,7 @@ Quét toàn bộ dữ liệu gốc định dạng `.mp4`. Trích xuất 1 khung 
 
 **Giai đoạn 2: Mã hóa Hình ảnh (Vision Encoding)**
 Sử dụng mô hình thị giác `ViT-bigG-14` mã hóa ảnh `.webp` thành các ma trận Vector không gian 1280 chiều.
-- **Chiến lược triển khai lai (Hybrid Deployment):** Cung cấp sẵn kịch bản mã hóa trên đám mây (Kaggle 2x T4 16GB) cho tập dữ liệu lớn. Đối với môi trường cục bộ (Local), hệ thống tự động ép định dạng số thực 16-bit (`COMPUTE_DTYPE = float16`) và giới hạn kích thước lô (`CLIP_BATCH_SIZE = 64`) để tối ưu hóa bộ nhớ.
+- **Tối ưu phần cứng:** Để xử lý kho ảnh lớn mà không tràn bộ nhớ, hệ thống sử dụng định dạng số thực 16-bit (`COMPUTE_DTYPE = float16`). Kích thước lô xử lý được cấu hình ở mức `CLIP_BATCH_SIZE = 64`, tối ưu cho quá trình suy luận cục bộ.
 
 **Module 1: Mở rộng Ngữ nghĩa (LLM Semantic Expansion)**
 Sử dụng mô hình ngôn ngữ cục bộ `Ollama Llama 3.2 3B` (Greedy Decoding, `Temperature = 0.0`) phân tích file đề thi `.jsonl`. Câu truy vấn được bóc tách thành 3 luồng dữ liệu độc lập: Bối cảnh, Cảnh chính, và Từ khóa văn bản (OCR), tạo tiền đề cho quá trình truy xuất không gian - thời gian.
@@ -50,7 +50,7 @@ final/
 
 ## 3. Yêu cầu Phần cứng & Phần mềm
 - **Hệ điều hành**: Ubuntu 22.04 / Windows 10/11
-- **Card Đồ Họa (GPU)**: Khuyến nghị GPU có tối thiểu 12GB VRAM (như RTX 3060, RTX 4070 trở lên) để chạy mượt mà mô hình ViT-bigG-14 ở Batch Size 64 (tiêu thụ khoảng 9.5GB VRAM). Do giới hạn phần cứng của thiết bị cá nhân (Laptop 8GB VRAM), đội ngũ phát triển đã linh hoạt triển khai Giai đoạn 2 (Vision Encoding) trên nền tảng đám mây Kaggle (2x T4 16GB VRAM) để hoàn thành quá trình mã hóa dữ liệu thực tế. Nếu BTC chạy trên máy chủ có VRAM >= 12GB, toàn bộ mã nguồn có thể chạy hoàn toàn cục bộ (Local).
+- **Card Đồ Họa (GPU)**: Khuyến nghị GPU có tối thiểu 12GB VRAM (như RTX 3060, RTX 4070 trở lên) để chạy mượt mà mô hình ViT-bigG-14 ở Batch Size 64 (tiêu thụ khoảng 9.5GB VRAM). Nếu chạy trên máy 8GB VRAM, hệ thống hỗ trợ hạ cấu hình thông qua tham số `CLIP_BATCH_SIZE = 16` trong `config.py`.
 - **CUDA Toolkit**: 12.1+ (Khuyến nghị dùng Conda để tự quản lý)
 - **RAM hệ thống**: Khuyến nghị 32GB+
 - **Ổ cứng**: SSD NVMe (cần ít nhất 50GB trống để lưu Frame và Vector Database).
