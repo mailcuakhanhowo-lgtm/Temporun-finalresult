@@ -87,12 +87,13 @@ python src/station34_pipeline.py
 ```
 
 ## 9. Hướng dẫn chạy bằng Bảng Điều Khiển (Giao diện UI)
-Để hỗ trợ Ban Tổ chức thao tác trực quan hơn, mã nguồn cung cấp một Bảng điều khiển (Dashboard) không yêu cầu cài đặt thêm thư viện web.
-Vui lòng chạy lệnh:
+Để hỗ trợ Ban Tổ chức thao tác trực quan hơn, mã nguồn cung cấp một Bảng điều khiển (Dashboard) không yêu cầu cài đặt thêm thư viện web. Tại giao diện này, BTC có thể dễ dàng **chạy thử độc lập từng Giai đoạn/Trạm** hoặc **chạy toàn bộ quy trình từ A-Z** chỉ bằng một cú click chuột.
+
+Vui lòng khởi động giao diện bằng lệnh:
 ```bash
 python dashboard_btc.py
 ```
-> **Lưu ý:** Giao diện này được thiết lập để tự động đọc dữ liệu mẫu từ thư mục `data/` bên trong mã nguồn. Nếu BTC muốn chấm điểm trên bộ dữ liệu bí mật có cấu trúc đường dẫn khác, vui lòng sử dụng lệnh Terminal như hướng dẫn ở mục 10 dưới đây.
+> **Lưu ý:** Giao diện này được thiết lập để tự động đọc dữ liệu mẫu từ thư mục `data/` bên trong mã nguồn. Nếu BTC muốn chấm điểm trên bộ dữ liệu bí mật có cấu trúc đường dẫn khác, vui lòng sử dụng lệnh Terminal truyền tham số như hướng dẫn ở mục 10 dưới đây.
 
 ## 10. Lệnh chạy toàn bộ Pipeline
 Đây là lệnh tự động hóa toàn bộ quy trình:
