@@ -51,6 +51,10 @@ class TempoRunDashboard:
         tk.Label(frame_paths, text="--output    :", bg="#f0f0f0").grid(row=2, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(frame_paths, textvariable=self.var_output, width=80).grid(row=2, column=1, padx=5, pady=5)
         
+        # Nút Lưu Cấu Hình (Lưu đường dẫn mà không chạy)
+        btn_save = tk.Button(frame_paths, text="💾 Lưu Cấu Hình\n(Không chạy)", bg="#5cb85c", fg="white", font=("Arial", 9, "bold"), command=self.save_paths_and_notify)
+        btn_save.grid(row=0, column=2, rowspan=3, padx=15, pady=5, sticky="nsew")
+        
         # Khung chứa các nút chạy lẻ
         frame_manual = tk.LabelFrame(root, text="Chạy từng bước (Manual Steps)", bg="#f0f0f0", font=("Arial", 10, "bold"))
         frame_manual.pack(fill="x", padx=20, pady=5)
@@ -108,6 +112,13 @@ class TempoRunDashboard:
                 }, f, indent=4)
         except Exception:
             pass
+
+    def save_paths_and_notify(self):
+        self.save_paths_to_json()
+        self.log(f"\n✅ ĐÃ LƯU CẤU HÌNH ĐƯỜNG DẪN THÀNH CÔNG!")
+        self.log(f"  - Video: {self.var_video.get()}")
+        self.log(f"  - Task: {self.var_task.get()}")
+        self.log(f"  - Output: {self.var_output.get()}\n")
 
     def log(self, message):
         """Hàm ghi log an toàn vào Text Widget, tự động cuộn xuống dưới cùng."""
