@@ -48,7 +48,7 @@ final/
 
 ## 3. Yêu cầu Phần cứng & Phần mềm
 - **Hệ điều hành**: Ubuntu 22.04 / Windows 10/11
-- **Card Đồ Họa (GPU)**: Khuyến nghị GPU có tối thiểu 12GB VRAM (như RTX 3060, RTX 4070 trở lên) để chạy mượt mà mô hình ViT-bigG-14 ở Batch Size 64 (tiêu thụ khoảng 9.5GB VRAM). Đã kiểm thử thành công trên hệ thống 24GB VRAM (NVIDIA RTX 4090). Nếu chạy trên máy 8GB VRAM, vui lòng vào `config.py` giảm `CLIP_BATCH_SIZE = 16`.
+- **Card Đồ Họa (GPU)**: Khuyến nghị GPU có tối thiểu 12GB VRAM (như RTX 3060, RTX 4070 trở lên) để chạy mượt mà mô hình ViT-bigG-14 ở Batch Size 64 (tiêu thụ khoảng 9.5GB VRAM). Do giới hạn phần cứng của thiết bị cá nhân (Laptop 8GB VRAM), đội ngũ phát triển đã linh hoạt triển khai Giai đoạn 2 (Vision Encoding) trên nền tảng đám mây Kaggle (2x T4 16GB VRAM) để hoàn thành quá trình mã hóa dữ liệu thực tế. Nếu BTC chạy trên máy chủ có VRAM >= 12GB, toàn bộ mã nguồn có thể chạy hoàn toàn cục bộ (Local).
 - **CUDA Toolkit**: 12.1+ (Khuyến nghị dùng Conda để tự quản lý)
 - **RAM hệ thống**: Khuyến nghị 32GB+
 - **Ổ cứng**: SSD NVMe (cần ít nhất 50GB trống để lưu Frame và Vector Database).
