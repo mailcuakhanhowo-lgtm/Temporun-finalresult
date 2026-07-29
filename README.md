@@ -1,28 +1,28 @@
-# Tempo Run 2026 - Cỗ Xe Tăng Bất Tử (Local Pipeline)
+# Giải pháp Truy xuất Không gian - Thời gian kết hợp Mở rộng Ngữ nghĩa (Local Pipeline)
 
 ## 1. Giới thiệu Phương pháp
-Phương pháp "Cỗ Xe Tăng Bất Tử" giải quyết bài toán Temporal Video Retrieval thông qua kiến trúc 4 Trạm Độc lập, chạy hoàn toàn offline trên Local:
-- **Trạm 1 (Ollama Llama 3.2 3B)**: Bóc tách ngữ nghĩa câu truy vấn thành các trường dữ liệu (Cảnh chính, Bối cảnh trước/sau, Từ khóa OCR).
-- **Trạm 2 (CLIP ViT-bigG-14 1280D)**: Mã hóa Frame ảnh (GĐ2) và câu truy vấn (Trạm 2) thành không gian vector chung.
-- **Trạm 3 (Numpy - Soft Fusion)**: Tìm kiếm trượt thời gian (Sliding Window) kết hợp hàm mũ và hệ số nhân để tăng cường độ chính xác, truy xuất Top 500 ứng viên cực nhanh qua mmap.
-- **Trạm 4 (EasyOCR)**: Quét nhận diện chữ (OCR) trên các ứng viên Top 500 và thưởng điểm tự tin nếu khớp với từ khóa trong câu hỏi.
+Giải pháp giải quyết bài toán Temporal Video Retrieval thông qua kiến trúc 4 Module, chạy hoàn toàn offline trên thiết bị cục bộ:
+- **Module 1 (Ollama Llama 3.2 3B)**: Bóc tách ngữ nghĩa câu truy vấn thành các trường dữ liệu (Cảnh chính, Bối cảnh trước/sau, Từ khóa OCR).
+- **Module 2 (CLIP ViT-bigG-14 1280D)**: Mã hóa Frame ảnh và câu truy vấn thành không gian vector chung.
+- **Module 3 (Numpy - Soft Fusion)**: Tìm kiếm trượt thời gian (Sliding Window) kết hợp hàm mũ và hệ số nhân để tăng cường độ chính xác, truy xuất Top 500 ứng viên.
+- **Module 4 (EasyOCR)**: Quét nhận diện chữ (OCR) trên các ứng viên Top 500 và tích hợp điểm tự tin nếu khớp với từ khóa trong câu hỏi.
 
 ## 2. Cấu trúc Repository
 ```
 final/
 ├── data/                  # Thư mục trống để chứa dữ liệu đầu vào và trung gian
 ├── src/                   # Chứa mã nguồn chính
-│   ├── config.py          # Bảng điều khiển trung tâm (Cấu hình toàn bộ siêu tham số)
+│   ├── config.py          # Tập tin cấu hình các tham số hệ thống
 │   ├── step1_extract_frames.py # Giai đoạn 1: Trích xuất Frame
 │   ├── step2_encode_clip.py    # Giai đoạn 2: Mã hóa Frame -> Vector
-│   ├── station1_ollama.py      # Trạm 1: Bóc tách ngữ nghĩa bằng LLM
-│   ├── station2_clip.py        # Trạm 2: Đúc Vector Query
-│   ├── station3_numpy.py       # Trạm 3: Tìm kiếm Numpy (Soft Fusion)
-│   ├── station4_ocr.py         # Trạm 4: Nhận diện chữ
-│   └── station34_pipeline.py   # Điều phối song song Trạm 3 & 4
+│   ├── station1_ollama.py      # Module 1: Phân tích ngữ nghĩa bằng LLM
+│   ├── station2_clip.py        # Module 2: Trích xuất đặc trưng câu truy vấn
+│   ├── station3_numpy.py       # Module 3: Tính toán khoảng cách (Soft Fusion)
+│   ├── station4_ocr.py         # Module 4: Nhận diện và đối chiếu văn bản
+│   └── station34_pipeline.py   # Module điều phối song song Module 3 & 4
 ├── environment.yml        # Tệp môi trường Conda
 ├── requirements.txt       # Tệp thư viện Pip
-├── main.py                # Script chạy toàn bộ pipeline từ số 0
+├── main.py                # Script chạy toàn bộ quy trình
 └── README.md              # File hướng dẫn này
 ```
 
@@ -34,7 +34,7 @@ final/
 - **Ổ cứng**: SSD NVMe (cần ít nhất 50GB trống để lưu Frame và Vector Database).
 
 ## 4. Hướng dẫn cài đặt môi trường
-Ban Tổ chức được khuyến nghị sử dụng **Conda** để tránh xung đột hệ thống.
+Ban Tổ chức được khuyến nghị sử dụng **Conda** để quản lý môi trường.
 
 **Cách 1: Sử dụng Conda (Khuyên dùng)**
 ```bash
@@ -48,24 +48,28 @@ pip install -r requirements.txt
 ```
 
 ## 5. Hướng dẫn tải tài nguyên bổ sung
-Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình Llama 3.2 3B ở Trạm 1.
+Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình Llama 3.2 3B ở Module 1.
 - **Cài đặt Ollama**: Tải tại `https://ollama.com/download`
-- **Tải mô hình**: Chạy lệnh sau trên terminal/cmd:
+- **Tải Script**:
   ```bash
-  ollama run llama3.2:3b
+  bash scripts/download_weights.sh
+  ```
+- **Tải mô hình thủ công (nếu không dùng script)**:
+  ```bash
+  ollama pull llama3.2:3b
   ```
   *(Ollama phải được giữ trạng thái chạy ngầm khi thực thi mã nguồn).*
 
 ## 6. Mô tả Dữ liệu Đầu vào
 - Mã nguồn nhận đường dẫn tự động thông qua dòng lệnh.
-- Thư mục video gốc chứa file `.mp4` phải được truyền qua biến `--video_dir`.
-- File câu hỏi (đề thi) `.jsonl` phải được truyền qua biến `--task_file`.
+- Thư mục video gốc chứa file `.mp4` được truyền qua tham số `--video_dir`.
+- File câu hỏi (đề thi) `.jsonl` được truyền qua tham số `--task_file`.
 
 ## 7. Mô tả Kết quả Đầu ra
-Kết quả được xuất ra file JSON (ví dụ: `submission.json`) tại đường dẫn truyền qua biến `--output`. File kết quả đúng cấu trúc BTC yêu cầu: 10 predictions mỗi task_id, kèm theo frame_ms tính từ đầu clip.
+Kết quả được xuất ra file JSON (ví dụ: `submission.json`) tại đường dẫn truyền qua biến `--output`. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi task_id, kèm theo frame_ms tính từ đầu clip.
 
-## 8. Hướng dẫn chạy từng Script (Thủ công)
-Nếu BTC muốn chạy từng bước (Thay vì dùng `main.py`), hãy cấu hình các biến môi trường `VIDEO_DIR`, `TASK_FILE_PATH`, `SUBMISSION_FILE_PATH` và chạy lần lượt:
+## 8. Hướng dẫn chạy từng phần (Thủ công)
+Nếu BTC muốn kiểm thử từng bước độc lập (thay vì dùng `main.py`), vui lòng cấu hình các biến môi trường `VIDEO_DIR`, `TASK_FILE_PATH`, `SUBMISSION_FILE_PATH` và chạy lần lượt:
 ```bash
 python src/step1_extract_frames.py
 python src/step2_encode_clip.py
@@ -74,22 +78,21 @@ python src/station2_clip.py
 python src/station34_pipeline.py
 ```
 
-## 9. Lệnh chạy toàn bộ Pipeline (Tự động từ con số 0)
-Đây là lệnh chính thức để BTC đánh giá bài làm. Câu lệnh này sẽ tự động chạy toàn bộ quy trình từ cắt video -> ép vector -> trích xuất NLP -> tìm kiếm OCR -> ra kết quả.
+## 9. Lệnh chạy toàn bộ Pipeline
+Đây là lệnh tự động hóa toàn bộ quy trình:
 
 ```bash
 python main.py --video_dir /du/ong/dan/toi/dataset/videos --task_file /du/ong/dan/toi/private_round_tasks.jsonl --output /du/ong/dan/toi/submission.json
 ```
 
-*(Hãy thay đổi `/du/ong/dan/toi/...` thành đường dẫn thực tế trên máy đánh giá)*.
+*(Vui lòng thay đổi đường dẫn phù hợp với hệ thống đánh giá)*.
 
 ## 10. Các Tham số Mặc định
-Mọi thông số được đặt trong `src/config.py`. Hệ thống đã được tuning tối ưu:
-- `VISION_ECOSYSTEM = "1280D"`: Khóa cứng model ViT-bigG-14.
-- `FRAME_INTERVAL_SEC = 1.0`: Lấy 1 khung hình mỗi giây.
-- `TOP_K_SEARCH = 100`: Tối ưu hóa truy xuất bộ nhớ.
-- `COMPUTE_DTYPE = "float16"`: Tránh Out of Memory cho GĐ2.
+Mọi thông số được cấu hình trong `src/config.py`:
+- Sử dụng mô hình ViT-bigG-14.
+- `FRAME_INTERVAL_SEC = 1.0`: Trích xuất 1 khung hình mỗi giây.
+- `COMPUTE_DTYPE = "float16"`: Tối ưu bộ nhớ VRAM cho quá trình mã hóa ảnh.
 
-## 11. Các lỗi hoặc giới hạn đã biết
-- Lỗi kết nối Ollama: Nếu Ollama không được bật hoặc cổng `11434` bị chiếm, Trạm 1 sẽ báo lỗi và Fallback về việc dùng nguyên văn câu hỏi (Tắt tính năng chia tách ngữ cảnh). BTC lưu ý kiểm tra dịch vụ Ollama trước khi chấm.
-- Hệ thống cần nhiều CPU/RAM để cắt ảnh từ Video (OpenCV/FFmpeg) ở GĐ1, có thể gây nóng máy cục bộ trong 1-2 tiếng đầu tiên.
+## 11. Các lưu ý khi vận hành
+- Nếu dịch vụ Ollama không khả dụng (cổng 11434 không phản hồi), hệ thống sẽ tự động sử dụng nguyên văn câu truy vấn gốc. Xin lưu ý khởi động Ollama trước khi thực thi.
+- Quá trình trích xuất khung hình ở Giai đoạn 1 yêu cầu tài nguyên CPU/RAM cao, mong BTC lưu ý.
