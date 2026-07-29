@@ -70,11 +70,11 @@ Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình 
 
 ## 6. Mô tả Dữ liệu Đầu vào
 - Mã nguồn nhận đường dẫn tự động thông qua dòng lệnh.
-- Thư mục video gốc chứa file `.mp4` được truyền qua tham số `--video_dir`.
-- File câu hỏi (đề thi) `.jsonl` được truyền qua tham số `--task_file`.
+- Thư mục video gốc chứa file `.mp4` được truyền qua tham số `--video_dir` *(ví dụ: `"D:/Data_ChamThi/Videos"`)*.
+- File câu hỏi (đề thi) `.jsonl` được truyền qua tham số `--task_file` *(ví dụ: `"D:/Data_ChamThi/private_round_tasks.jsonl"`)*.
 
 ## 7. Mô tả Kết quả Đầu ra
-Kết quả được xuất ra file JSON (ví dụ: `submission.json`) tại đường dẫn truyền qua biến `--output`. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi task_id, kèm theo frame_ms tính từ đầu clip.
+Kết quả được xuất ra file JSON tại đường dẫn truyền qua biến `--output` *(ví dụ: `"D:/KetQua/doi_co_xe_tang.json"`)*. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi task_id, kèm theo frame_ms tính từ đầu clip.
 
 ## 8. Hướng dẫn chạy từng phần (Thủ công)
 Nếu BTC muốn kiểm thử từng bước độc lập (thay vì dùng `main.py`), vui lòng cấu hình các biến môi trường `VIDEO_DIR`, `TASK_FILE_PATH`, `SUBMISSION_FILE_PATH` và chạy lần lượt:
