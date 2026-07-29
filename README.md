@@ -3,13 +3,17 @@
 > **Lời tựa từ Đội thi:** Toàn bộ quá trình nghiên cứu, từ việc học hỏi các kiến thức cơ bản về Video Retrieval cho đến từng dòng mã nguồn, đều được đội thi tự học hỏi từng bước và xây dựng hoàn toàn với sự trợ giúp đắc lực của các Trợ lý Trí tuệ Nhân tạo (AI).
 
 ## 1. Giới thiệu Phương pháp
-Giải pháp giải quyết bài toán Temporal Video Retrieval thông qua đường ống xử lý tự động (End-to-End Pipeline) chia thành 6 giai đoạn cốt lõi:
-- **Tiền xử lý Video**: Lọc khung hình trùng lặp bằng thuật toán nội suy **Hybrid V** (tự động phát hiện ngày/đêm và tính khoảng cách Bhattacharyya), do AI đề xuất.
-- **Mã hóa Hình ảnh**: Sử dụng mô hình **ViT-bigG-14** (không gian 1280 chiều, tối ưu hóa bộ nhớ với chuẩn `float16`).
-- **Mở rộng Ngữ nghĩa**: Sử dụng LLM cục bộ **Ollama Llama 3.2 3B** phân rã truy vấn gốc thành Cảnh chính, Bối cảnh và Từ khóa.
-- **Mã hóa Truy vấn**: Đồng bộ hóa dữ liệu văn bản vào không gian vector qua nhánh Text-Encoder của **ViT-bigG-14**.
-- **Truy xuất Không gian - Thời gian**: Tìm kiếm dựa trên thuật toán **Soft-Fusion Retrieval** (phép nhân ma trận kết hợp trượt thời gian Sliding Window và hàm mũ).
-- **Nhận diện Văn bản**: Kích hoạt **EasyOCR** kết hợp thuật toán so khớp chuỗi **Levenshtein** để cộng điểm thưởng cho các ứng viên.
+Giải pháp giải quyết bài toán Temporal Video Retrieval thông qua đường ống xử lý tự động (End-to-End Pipeline) được chia thành 2 khối chính:
+
+**Khối 1: Giai đoạn Tiền xử lý (Offline)**
+- **Cắt ảnh (Frame Extraction)**: Lọc khung hình trùng lặp bằng thuật toán nội suy **Hybrid V** (tự động phát hiện ngày/đêm và tính khoảng cách Bhattacharyya), do AI đề xuất.
+- **Mã hóa (Vision Encoding)**: Trích xuất đặc trưng không gian 1280 chiều từ các khung hình `.webp` bằng mô hình **ViT-bigG-14** (tối ưu hóa `float16`).
+
+**Khối 2: Giai đoạn Truy vấn (Online - 4 Trạm xử lý)**
+- **Trạm 1 (Mở rộng Ngữ nghĩa)**: Sử dụng LLM cục bộ **Ollama Llama 3.2 3B** phân rã truy vấn gốc thành Cảnh chính, Bối cảnh và Từ khóa.
+- **Trạm 2 (Mã hóa Truy vấn)**: Đồng bộ hóa văn bản vào không gian vector qua nhánh Text-Encoder của **ViT-bigG-14**.
+- **Trạm 3 (Truy xuất Không gian - Thời gian)**: Tìm kiếm ứng viên bằng thuật toán **Soft-Fusion Retrieval** (phép nhân ma trận kết hợp trượt thời gian Sliding Window và hàm mũ).
+- **Trạm 4 (Nhận diện Văn bản)**: Kích hoạt **EasyOCR** kết hợp thuật toán so khớp chuỗi **Levenshtein** để cộng điểm thưởng (Confidence Bonus).
 
 ## 2. Cấu trúc Repository
 ```
