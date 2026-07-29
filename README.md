@@ -83,6 +83,11 @@ Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình 
 Kết quả được xuất ra file JSON tại đường dẫn truyền qua biến `--output` *(ví dụ: `"D:/KetQua/submission.json"`)*. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi task_id, kèm theo frame_ms tính từ đầu clip.
 > ⚠️ **LƯU Ý QUAN TRỌNG TRƯỚC KHI CHẠY CODE**: 
 > Ban Tổ chức vui lòng đảm bảo Terminal đang trỏ đúng vào thư mục gốc của dự án (nơi chứa file `main.py`). Nếu Terminal đang ở thư mục khác (ví dụ `C:\Users\...`), vui lòng dùng lệnh `cd` để di chuyển vào thư mục dự án trước khi chạy bất kỳ lệnh `python` nào bên dưới.
+> 
+> **Ví dụ lệnh chuyển thư mục:**
+> ```bash
+> cd /d "D:\Duong\Dan\Giai\Nen\Temporun-finalresult"
+> ```
 
 ## 8. Hướng dẫn chạy từng phần (Thủ công)
 Nếu BTC muốn kiểm thử từng bước độc lập (thay vì dùng `main.py`), vui lòng cấu hình các biến môi trường `VIDEO_DIR`, `TASK_FILE_PATH`, `SUBMISSION_FILE_PATH` và chạy lần lượt:
