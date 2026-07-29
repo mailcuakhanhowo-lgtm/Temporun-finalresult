@@ -50,6 +50,21 @@ def main():
     os.environ["TASK_FILE_PATH"] = os.path.abspath(args.task_file)
     os.environ["SUBMISSION_FILE_PATH"] = os.path.abspath(args.output)
     
+    # LƯU ĐƯỜNG DẪN ĐỂ UI CÓ THỂ ĐỒNG BỘ ĐƯỢC
+    try:
+        import json
+        paths_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "btc_paths.json")
+        os.makedirs(os.path.dirname(paths_file), exist_ok=True)
+        with open(paths_file, "w", encoding="utf-8") as f:
+            json.dump({
+                "video_dir": os.path.abspath(args.video_dir),
+                "task_file": os.path.abspath(args.task_file),
+                "output": os.path.abspath(args.output)
+            }, f, indent=4)
+    except Exception as e:
+        print(f"Lưu ý: Không thể ghi file cấu hình giao diện UI ({e})")
+
+    
     # Chạy lần lượt các trạm từ số 0
     run_step("src/step1_extract_frames.py", "Giai đoạn 1: Trích xuất Frame (OpenCV)")
     run_step("src/step2_encode_clip.py", "Giai đoạn 2: Mã hóa Ảnh thành Vector (CLIP ViT-bigG-14)")

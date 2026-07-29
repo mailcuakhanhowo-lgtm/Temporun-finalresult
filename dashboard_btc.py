@@ -3,7 +3,10 @@ from tkinter import scrolledtext, font
 import subprocess
 import threading
 import sys
-import os
+import osimport json
+
+# Đường dẫn file đồng bộ state giữa Terminal và UI
+PATHS_FILE = "data/btc_paths.json"
 
 # Đường dẫn mặc định (Phục vụ cho việc test nhanh của BTC)
 DEFAULT_VIDEO_DIR = "data/videos"
@@ -23,10 +26,30 @@ class TempoRunDashboard:
         
         # Lưu ý đỏ cho BTC
         warn_text = (
-            "LƯU Ý: Giao diện này sẽ chạy pipeline bằng các ĐƯỜNG DẪN MẶC ĐỊNH (data/videos, data/private_round_tasks.jsonl).\n"
-            "Nếu BTC muốn chỉ định đường dẫn tùy chỉnh tuyệt đối trên máy, vui lòng sử dụng lệnh Terminal như trong README."
+            "LƯU Ý: Giao diện này mặc định chạy với dữ liệu mẫu (data/).\n"
+            "Tuy nhiên, nếu ngài sửa đường dẫn ở dưới, hoặc đã chạy lệnh Terminal trước đó, các đường dẫn bí mật sẽ tự động được đồng bộ và lưu lại."
         )
         tk.Label(root, text=warn_text, fg="red", bg="#f0f0f0", font=("Arial", 10, "bold"), wraplength=850, justify="center").pack(pady=(0, 15))
+        
+        # 3 Ô nhập đường dẫn (Text Box)
+        self.var_video = tk.StringVar(value=DEFAULT_VIDEO_DIR)
+        self.var_task = tk.StringVar(value=DEFAULT_TASK_FILE)
+        self.var_output = tk.StringVar(value=DEFAULT_OUTPUT)
+        
+        # Cố gắng nạp dữ liệu từ Terminal (nếu có)
+        self.load_paths_from_json()
+        
+        frame_paths = tk.LabelFrame(root, text="Cấu hình Đường Dẫn (Tự động đồng bộ với Terminal)", bg="#f0f0f0", font=("Arial", 10, "bold"))
+        frame_paths.pack(fill="x", padx=20, pady=5)
+        
+        tk.Label(frame_paths, text="--video_dir :", bg="#f0f0f0").grid(row=0, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(frame_paths, textvariable=self.var_video, width=80).grid(row=0, column=1, padx=5, pady=5)
+        
+        tk.Label(frame_paths, text="--task_file :", bg="#f0f0f0").grid(row=1, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(frame_paths, textvariable=self.var_task, width=80).grid(row=1, column=1, padx=5, pady=5)
+        
+        tk.Label(frame_paths, text="--output    :", bg="#f0f0f0").grid(row=2, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(frame_paths, textvariable=self.var_output, width=80).grid(row=2, column=1, padx=5, pady=5)
         
         # Khung chứa các nút chạy lẻ
         frame_manual = tk.LabelFrame(root, text="Chạy từng bước (Manual Steps)", bg="#f0f0f0", font=("Arial", 10, "bold"))
@@ -62,6 +85,29 @@ class TempoRunDashboard:
         
         self.process = None
         self.log("✅ Giao diện đã sẵn sàng! Đợi lệnh từ Ban Tổ chức...\n")
+
+    def load_paths_from_json(self):
+        try:
+            if os.path.exists(PATHS_FILE):
+                with open(PATHS_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    self.var_video.set(data.get("video_dir", DEFAULT_VIDEO_DIR))
+                    self.var_task.set(data.get("task_file", DEFAULT_TASK_FILE))
+                    self.var_output.set(data.get("output", DEFAULT_OUTPUT))
+        except Exception:
+            pass
+            
+    def save_paths_to_json(self):
+        try:
+            os.makedirs(os.path.dirname(PATHS_FILE), exist_ok=True)
+            with open(PATHS_FILE, "w", encoding="utf-8") as f:
+                json.dump({
+                    "video_dir": self.var_video.get(),
+                    "task_file": self.var_task.get(),
+                    "output": self.var_output.get()
+                }, f, indent=4)
+        except Exception:
+            pass
 
     def log(self, message):
         """Hàm ghi log an toàn vào Text Widget, tự động cuộn xuống dưới cùng."""
@@ -107,23 +153,24 @@ class TempoRunDashboard:
         threading.Thread(target=target, daemon=True).start()
 
     def run_script(self, script_path):
+        self.save_paths_to_json() # Lưu cấu hình hiện tại trước khi chạy
         env = os.environ.copy()
         env["PYTHONUNBUFFERED"] = "1"
+        env["VIDEO_DIR"] = os.path.abspath(self.var_video.get())
+        env["TASK_FILE_PATH"] = os.path.abspath(self.var_task.get())
+        env["SUBMISSION_FILE_PATH"] = os.path.abspath(self.var_output.get())
         self.run_command_in_thread([sys.executable, script_path], env=env)
         
     def run_full_pipeline(self):
+        self.save_paths_to_json() # Lưu cấu hình hiện tại trước khi chạy
         env = os.environ.copy()
         env["PYTHONUNBUFFERED"] = "1"
-        # Bơm các đường dẫn mặc định vào biến môi trường để config.py nhận diện
-        env["VIDEO_DIR"] = os.path.abspath(DEFAULT_VIDEO_DIR)
-        env["TASK_FILE_PATH"] = os.path.abspath(DEFAULT_TASK_FILE)
-        env["SUBMISSION_FILE_PATH"] = os.path.abspath(DEFAULT_OUTPUT)
         
         cmd = [
             sys.executable, "main.py",
-            "--video_dir", DEFAULT_VIDEO_DIR,
-            "--task_file", DEFAULT_TASK_FILE,
-            "--output", DEFAULT_OUTPUT
+            "--video_dir", self.var_video.get(),
+            "--task_file", self.var_task.get(),
+            "--output", self.var_output.get()
         ]
         self.run_command_in_thread(cmd, env=env)
 
