@@ -34,26 +34,14 @@ final/
 └── README.md              # File hướng dẫn này
 ```
 
-## 3. Hướng dẫn Đọc Mã Nguồn (Dành cho Giám khảo Kỹ thuật)
-Để thuận tiện cho việc chấm thi và kiểm chứng các thuật toán, Đội thi xin tóm tắt luồng logic cốt lõi của từng File trong thư mục `src/`:
-
-1. **`config.py` (Trạm Kiểm soát Trung tâm):** Chứa MỌI cấu hình (Đường dẫn, Siêu tham số, Ngưỡng cắt, TOP_K). Đội thi tuân thủ nguyên tắc "Zero Hardcode" - tuyệt đối không có con số nào bị chôn giấu trong các file xử lý.
-2. **`step1_extract_frames.py` (Tiền xử lý Video):** Giải nén Video thành Ảnh bằng OpenCV đa luồng. Điểm nhấn kỹ thuật: Thuật toán lọc trùng lặp **Hybrid V** kết hợp khoảng cách Bhattacharyya, giúp loại bỏ ảnh rác nhưng vẫn giữ được chi tiết ở các cảnh quay ban đêm/thiếu sáng.
-3. **`step2_encode_clip.py` (Tiền xử lý Ảnh):** Đúc Frame thành Vector bằng mô hình CLIP (hoặc SigLIP). Điểm nhấn: Quản lý bộ nhớ nghiêm ngặt bằng kiểu dữ liệu `float16` và kỹ thuật ánh xạ bộ nhớ `mmap`, đảm bảo không bao giờ tràn RAM kể cả với hàng triệu Vector.
-4. **`station1_ollama.py` (Phân rã Ngữ nghĩa):** Nhận câu hỏi gốc, gọi API cục bộ Ollama để ép LLM trả về cấu trúc JSON nghiêm ngặt (gồm Cảnh chính, Cảnh trước, Cảnh sau, Từ khóa OCR).
-5. **`station2_clip.py` (Nhúng Truy vấn):** Chuyển đổi các thành phần JSON vừa phân rã thành các Vector Toán học độc lập.
-6. **`station3_numpy.py` (Lõi Tìm kiếm Cửa sổ Trượt):** Đây là "Trái tim" của hệ thống. Thực hiện phép nhân ma trận Dot-product siêu tốc, sau đó áp dụng Cửa sổ Trượt (`np.roll`) để tìm kiếm chuỗi thời gian (Before/After) và hàm mũ (Power Scaling) để khuếch đại điểm số.
-7. **`station4_ocr.py` (Nhận diện Từ khóa):** Nếu truy vấn có yêu cầu tìm chữ (Ví dụ: "Biển số xe 86"), trạm này kích hoạt EasyOCR kết hợp đối sánh mờ Levenshtein để cộng điểm thưởng (Bonus).
-8. **`station34_pipeline.py` (Điều phối & Xuất file):** Nhận kết quả từ Trạm 3 và Trạm 4, hợp nhất điểm số, sắp xếp thứ hạng (Top K) và tạo ra file `submission.json` chuẩn Format BTC.
-
-## 4. Yêu cầu Phần cứng & Phần mềm
+## 3. Yêu cầu Phần cứng & Phần mềm
 - **Hệ điều hành**: Windows 11
 - **Card Đồ Họa (GPU)**: Khuyến nghị GPU có tối thiểu 12GB VRAM (như RTX 3060, RTX 4070 trở lên) để chạy mượt mà mô hình ViT-bigG-14 ở Batch Size 64 (thực tế tiêu thụ khoảng 9.5GB VRAM).
 - **CUDA Toolkit**: 12.1+ (Khuyến nghị dùng Conda để tự quản lý)
 - **RAM hệ thống**: Khuyến nghị 32GB+
 - **Ổ cứng**: SSD NVMe (cần ít nhất 50GB trống để lưu Frame và Vector Database).
 
-## 5. Hướng dẫn cài đặt môi trường
+## 4. Hướng dẫn cài đặt môi trường
 Ban Tổ chức được khuyến nghị sử dụng **Conda** để quản lý môi trường.
 
 **Cách 1: Sử dụng Conda (Khuyên dùng)**
@@ -67,7 +55,7 @@ conda activate temporun-2026
 pip install -r requirements.txt
 ```
 
-## 6. Hướng dẫn tải tài nguyên bổ sung
+## 5. Hướng dẫn tải tài nguyên bổ sung
 Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình Llama 3.2 3B ở Module 1.
 - **Cài đặt Ollama**: Tải tại `https://ollama.com/download`
 - **Tải Script**:
@@ -80,15 +68,39 @@ Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình 
   ```
   *(Ollama phải được giữ trạng thái chạy ngầm khi thực thi mã nguồn).*
 
-## 7. Mô tả Dữ liệu Đầu vào
+## 6. Mô tả Dữ liệu Đầu vào
 - Mã nguồn nhận đường dẫn tự động thông qua dòng lệnh.
-- Thư mục video gốc chứa file `.mp4` được truyền qua tham số `--video_dir`.
-- File câu hỏi (đề thi) `.jsonl` được truyền qua tham số `--task_file`.
+- Thư mục video gốc chứa file `.mp4` được truyền qua tham số `--video_dir`. Cấu trúc thư mục mong đợi:
+  ```text
+  videos/
+  ├── video_001.mp4
+  ├── video_002.mp4
+  └── ...
+  ```
+- File câu hỏi (đề thi) `.jsonl` được truyền qua tham số `--task_file`. Cấu trúc mỗi dòng JSON:
+  ```json
+  {"task_id": "1", "query": "Một người đàn ông đang lái xe máy..."}
+  {"task_id": "2", "query": "Biển số xe 86 chạy qua ngã tư..."}
+  ```
 
-## 8. Mô tả Kết quả Đầu ra
-Kết quả được xuất ra file JSON (ví dụ: `submission.json`) tại đường dẫn truyền qua biến `--output`. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi task_id, kèm theo frame_ms tính từ đầu clip.
+## 7. Mô tả Kết quả Đầu ra
+Kết quả được xuất ra file JSON (ví dụ: `submission.json`) tại đường dẫn truyền qua biến `--output`. File kết quả tuân thủ cấu trúc BTC yêu cầu: 10 predictions mỗi `task_id`, kèm theo `frame_ms` tính từ đầu clip.
 
-## 9. Hướng dẫn chạy từng phần (Thủ công)
+**Code mẫu File Kết quả (submission.json):**
+```json
+{
+  "1": [
+    {"video_name": "video_001", "frame_ms": 15000},
+    {"video_name": "video_002", "frame_ms": 32000},
+    ... (tổng cộng 10 kết quả)
+  ],
+  "2": [
+    {"video_name": "video_005", "frame_ms": 1000},
+    ...
+  ]
+}
+```
+## 8. Hướng dẫn chạy từng phần (Thủ công)
 Nếu BTC muốn kiểm thử từng bước độc lập (thay vì dùng `main.py`), vui lòng cấu hình các biến môi trường `VIDEO_DIR`, `TASK_FILE_PATH`, `SUBMISSION_FILE_PATH` và chạy lần lượt:
 ```bash
 python src/step1_extract_frames.py
@@ -98,7 +110,7 @@ python src/station2_clip.py
 python src/station34_pipeline.py
 ```
 
-## 10. Hướng dẫn chạy bằng Bảng Điều Khiển (Giao diện UI)
+## 9. Hướng dẫn chạy bằng Bảng Điều Khiển (Giao diện UI)
 Để hỗ trợ Ban Tổ chức thao tác trực quan hơn, mã nguồn cung cấp một Bảng điều khiển (Dashboard) không yêu cầu cài đặt thêm thư viện web. Tại giao diện này, BTC có thể dễ dàng **chạy thử độc lập từng Giai đoạn/Trạm** hoặc **chạy toàn bộ quy trình từ A-Z** chỉ bằng một cú click chuột.
 
 Vui lòng khởi động giao diện bằng lệnh:
@@ -109,7 +121,7 @@ python dashboard_btc.py
 > 
 > **Quy tắc ưu tiên (Ghi đè):** Nếu BTC chỉnh sửa đường dẫn trên Giao diện, hệ thống sẽ chạy và lưu lại cấu hình đó. Tuy nhiên, nếu sau đó BTC quyết định quay lại dùng lệnh Terminal (`python main.py ...`), **lệnh gõ tay trên Terminal luôn mang Quyền Ưu Tiên Cao Nhất**. Nó sẽ ghi đè mọi cấu hình của UI trước đó và ép UI phải đồng bộ theo lệnh mới này.
 
-## 11. Lệnh chạy toàn bộ Pipeline
+## 10. Lệnh chạy toàn bộ Pipeline
 Đây là lệnh tự động hóa toàn bộ quy trình:
 
 ```bash
@@ -118,13 +130,13 @@ python main.py --video_dir "C:/thu_muc_cua_BTC/videos" --task_file "C:/thu_muc_c
 
 *(Vui lòng thay đổi đường dẫn `C:/thu_muc_cua_BTC/...` cho phù hợp với hệ thống đánh giá thực tế của Ban Tổ chức)*.
 
-## 12. Các Tham số Mặc định
+## 11. Các Tham số Mặc định
 Mọi thông số được cấu hình trong `src/config.py`:
 - Sử dụng mô hình ViT-bigG-14.
 - `FRAME_INTERVAL_SEC = 1.0`: Trích xuất 1 khung hình mỗi giây.
 - `COMPUTE_DTYPE = "float16"`: Tối ưu bộ nhớ VRAM cho quá trình mã hóa ảnh.
 
-## 13. Các lỗi hoặc giới hạn đã biết
+## 12. Các lỗi hoặc giới hạn đã biết
 - **Giới hạn VRAM (ViT-bigG-14)**: Trong quá trình phát triển, mô hình `ViT-bigG-14` yêu cầu ~9.5GB VRAM, dẫn đến hiện tượng tràn bộ nhớ (Out of Memory) trên thiết bị cá nhân 8GB VRAM của đội thi. Để giải quyết, đội đã linh hoạt đưa quá trình mã hóa ảnh lên nền tảng đám mây Kaggle (sử dụng 2x T4 16GB VRAM) để hoàn thiện bài toán thực tế. Tuy nhiên, mã nguồn nộp cho Ban Tổ chức vẫn được thiết kế tối ưu (`float16`) để có thể chạy mượt mà hoàn toàn cục bộ trên máy chủ có cấu hình >=12GB VRAM.
 - **Sự phụ thuộc Ollama**: Nếu dịch vụ Ollama cục bộ không khả dụng, hệ thống tự động Fallback sử dụng nguyên văn câu truy vấn gốc.
 - Quá trình trích xuất khung hình ở Giai đoạn 1 yêu cầu tài nguyên CPU cao do chạy đa luồng đồng thời.
