@@ -55,18 +55,24 @@ conda activate temporun-2026
 pip install -r requirements.txt
 ```
 
-## 5. Hướng dẫn tải tài nguyên bổ sung
-Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình Llama 3.2 3B ở Module 1.
-- **Cài đặt Ollama**: Tải tại `https://ollama.com/download`
-- **Tải Script**:
-  ```bash
-  bash scripts/download_weights.sh
-  ```
-- **Tải mô hình thủ công (nếu không dùng script)**:
+## 5. Hướng dẫn cài đặt Ollama (Dành riêng cho Windows 11)
+Mã nguồn yêu cầu **Ollama** cài đặt cục bộ để chạy mô hình AI (Llama 3.2 3B) phục vụ trạm bóc tách ngữ nghĩa. Vui lòng làm theo 3 bước cực kỳ đơn giản sau:
+
+**Bước 1: Tải phần mềm Ollama**
+- Truy cập trang chủ: `https://ollama.com/download/windows`
+- Bấm nút **Download for Windows** để tải file `OllamaSetup.exe`.
+
+**Bước 2: Cài đặt vào máy**
+- Mở file `OllamaSetup.exe` vừa tải về và bấm `Install` (Cài đặt tự động chỉ mất vài giây).
+- Sau khi cài xong, biểu tượng chú Lạc đà (Ollama) sẽ xuất hiện ở góc dưới cùng bên phải màn hình (System Tray). *(Lưu ý: Hãy luôn giữ Ollama chạy ngầm khi chấm bài).*
+
+**Bước 3: Tải mô hình Llama 3.2**
+- Mở **Command Prompt** hoặc **PowerShell** trên Windows.
+- Copy/Paste dòng lệnh sau và nhấn Enter:
   ```bash
   ollama pull llama3.2:3b
   ```
-  *(Ollama phải được giữ trạng thái chạy ngầm khi thực thi mã nguồn).*
+- Đợi quá trình tải xuống hoàn tất (~2GB) là hệ thống đã sẵn sàng 100%!
 
 ## 6. Mô tả Dữ liệu Đầu vào
 - Mã nguồn nhận đường dẫn tự động thông qua dòng lệnh.
