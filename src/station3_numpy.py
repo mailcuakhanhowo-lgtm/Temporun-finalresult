@@ -86,7 +86,7 @@ def run_station3(chunk_id):
             import random
             top100 = []
             for i in range(100):
-                tar_name = random.choice(["C:/dataset/part1.tar", "D:/dataset/part2.tar"])
+                tar_name = random.choice(["dataset/part1.tar", "dataset/part2.tar"])
                 top100.append({
                     "video": "vid_mock",
                     "frame": i * 10,
